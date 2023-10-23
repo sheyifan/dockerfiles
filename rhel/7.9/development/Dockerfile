@@ -103,6 +103,7 @@ RUN yum groupinstall -y "Development tools" \
 RUN cd /root/Downloads \
     && wget https://download.qt.io/archive/qt/5.14/5.14.2/qt-opensource-linux-x64-5.14.2.run \
     && chmod a+x qt-opensource-linux-x64-5.14.2.run \
+    # Icons, used in *.desktop, for setup application in desktop menus
     && wget https://upload.wikimedia.org/wikipedia/commons/0/0b/Qt_logo_2016.svg \
     && wget --no-check-certificate https://upload.wikimedia.org/wikipedia/commons/1/13/Cmake.svg
 
@@ -122,6 +123,33 @@ Categories=Development;\n\
 Terminal=false\n\
 StartupWMClass=cmake-gui\n\
 StartupNotify=true' > /root/.local/share/applications/jetbrains-idea-ce.desktop
+
+# git
+RUN \
+    yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
+    && yum install -y https://repo.ius.io/ius-release-el7.rpm \
+    && yum install -y git
+
+ARG ZSH_CUSTOM=/root/.oh-my-zsh/custom
+
+# set zsh as default shell
+RUN \
+    yum install -y zsh \
+    # set zsh default shell
+    && chsh -s /bin/zsh \
+    # install oh-my-zsh
+    && sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" \
+    # plugin: zsh-completions
+    && git clone --depth=1 https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions \
+    # plugin: zsh-autosuggestions
+    && git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git ${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-autosuggestions \
+    # plugin: zsh-syntax-highlighting
+    && git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting \
+    && sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-completions zsh-syntax-highlighting)/' /root/.zshrc \
+    && sed -i 's/ZSH_THEME="robbyrussell"/ZSH_THEME="af-magic"/' /root/.zshrc \
+    # plugin: Incremental completion on zsh (real-time completion)
+    && mkdir $ZSH_CUSTOM/plugins/incr && curl -fsSL https://mimosa-pudica.net/src/incr-0.2.zsh -o $ZSH_CUSTOM/plugins/incr/incr.zsh \
+    && echo 'source $ZSH_CUSTOM/plugins/incr/incr.zsh' >> ~/.zshrc
 
 # Login settings
 RUN \
@@ -163,6 +191,6 @@ ENV CMAKE_HOME=/root/workdir/softwares/cmake-3.27.7-linux-x86_64
 ENV HOME=$HOME
 ENV PATH=$CMAKE_HOME/bin:$JAVA_HOME/bin:$MAVEN_HOME/bin:$IDEA_HOME/bin:$PATH
 
-ENTRYPOINT /root/startup.sh && /usr/bin/bash
+ENTRYPOINT /root/startup.sh && /usr/bin/zsh
 
 WORKDIR $HOME
