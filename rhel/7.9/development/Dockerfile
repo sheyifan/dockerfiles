@@ -72,6 +72,11 @@ RUN yum install -y zip unzip \
     # Jetbrains Mono font
     && /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/install_manual.sh)"
 
+RUN yum install -y python3-devel
+ARG PYTHON=/usr/bin/python3
+# import sysconfig; print(sysconfig.get_config_var('LIBDIR'))
+ARG PYTHON_LIBDIR=/usr/lib64
+
 RUN yum groupinstall -y "Development tools" \
     && cd $SW_PATH \
     # Install GCC
@@ -88,7 +93,8 @@ RUN yum groupinstall -y "Development tools" \
     && wget --no-check-certificate https://ftp.gnu.org/gnu/gdb/gdb-8.1.tar.gz \
     && tar -xzvf gdb-8.1.tar.gz \
     && cd gdb-8.1 \
-    && ./configure \
+    # GDB in Qt Creator need to be used with python
+    && ./configure --with-python=$PYTHON LDFLAGS="-L$PYTHON_LIBDIR"  \
     && make -j8 \
     && yum install -y texi2html texinfo \
     # install gcc to /usr/local/bin/gdb
@@ -100,6 +106,7 @@ RUN yum groupinstall -y "Development tools" \
 
 # Qt Creator icon: https://upload.wikimedia.org/wikipedia/commons/0/0b/Qt_logo_2016.svg
 # Just download qt offline installer. Need to install it mannually
+# You must run container with parameter `--cap-add=SYS_PTRACE --security-opt seccomp=unconfined`, so that you can debug in qt creator
 RUN cd /root/Downloads \
     && wget https://download.qt.io/archive/qt/5.14/5.14.2/qt-opensource-linux-x64-5.14.2.run \
     && chmod a+x qt-opensource-linux-x64-5.14.2.run \
@@ -170,7 +177,8 @@ RUN \
 
 # Startup script
 RUN \
-    echo -e '/usr/sbin/sshd\nvncserver -SecurityTypes None :1 -geometry 1920x1200' \
+    # vncconfig for copy-paste between vnc client and server
+    echo -e '/usr/sbin/sshd\nvncserver -SecurityTypes None :1 -geometry 1920x1200\nvncconfig &' \
     > /root/startup.sh \
     && chmod 777 /root/startup.sh
 
