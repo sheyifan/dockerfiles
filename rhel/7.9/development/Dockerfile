@@ -129,13 +129,50 @@ Comment=CMake GUI\n\
 Categories=Development;\n\
 Terminal=false\n\
 StartupWMClass=cmake-gui\n\
-StartupNotify=true' > /root/.local/share/applications/jetbrains-idea-ce.desktop
+StartupNotify=true' > /root/.local/share/applications/cmake.desktop
 
 # git
-RUN \
-    yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm \
-    && yum install -y https://repo.ius.io/ius-release-el7.rpm \
-    && yum install -y git
+RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm https://repo.ius.io/ius-release-el7.rpm \
+    && yum install -y make \
+    && yum install -y https://repo.ius.io/7/x86_64/packages/g/git236-2.36.5-1.el7.ius.x86_64.rpm
+
+# Python 3.8.5
+RUN cd /root/workdir \
+    && yum install -y zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel expat-devel libffi-devel \
+    && curl https://www.python.org/ftp/python/3.8.5/Python-3.8.5.tgz | tar xz \
+    && cd Python-3.8.5 \
+    && ./configure --enable-optimizations --enable-shared --with-lto \
+    && make -s -j8 \
+    && make altinstall \
+    && echo "/usr/local/lib" > /etc/ld.so.conf.d/common.conf \
+    && ldconfig \
+    && cd ../ && rm -rf Python-3.8.5
+
+RUN echo -e '[Desktop Entry]\n\
+Version=1.0\n\
+Type=Application\n\
+Name=Pycharm Community Edition\n\
+Icon=/root/workdir/softwares/pycharm-community-2022.3.3/bin/pycharm.svg\n\
+Exec="/root/workdir/softwares/pycharm-community-2022.3.3/bin/pycharm.sh" %f\n\
+Comment=Capable and Ergonomic IDE for Python\n\ 
+Categories=Development;IDE;\n\
+Terminal=false\n\
+StartupWMClass=jetbrains-pycharm-ce\n\
+StartupNotify=true' > /root/.local/share/applications/jetbrains-pycharm-ce.desktop
+
+RUN cd ${SW_PATH} \
+    && curl -L https://download.jetbrains.com/python/pycharm-community-2022.3.3.tar.gz | tar xz
+
+# Visual Studio Code
+RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
+    && sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo' \
+    && yum clean all \
+    && yum install -y code
+
+# Sublime Text
+RUN rpm -v --import https://download.sublimetext.com/sublimehq-rpm-pub.gpg \
+    && yum-config-manager --add-repo https://download.sublimetext.com/rpm/stable/x86_64/sublime-text.repo \
+    && yum install -y sublime-text
 
 ARG ZSH_CUSTOM=/root/.oh-my-zsh/custom
 
@@ -178,7 +215,7 @@ RUN \
 # Startup script
 RUN \
     # vncconfig for copy-paste between vnc client and server
-    echo -e '/usr/sbin/sshd\nvncserver -SecurityTypes None :1 -geometry 1920x1200\nvncconfig &' \
+    echo -e '/usr/sbin/sshd\nvncserver -SecurityTypes None :1 -geometry 1920x1200\nvncconfig &\nyum makecache fast' \
     > /root/startup.sh \
     && chmod 777 /root/startup.sh
 
