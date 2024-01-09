@@ -160,7 +160,8 @@ Terminal=false\n\
 StartupWMClass=jetbrains-pycharm-ce\n\
 StartupNotify=true' > /root/.local/share/applications/jetbrains-pycharm-ce.desktop
 
-RUN cd ${SW_PATH} \
+RUN yum install -y xcb-util-wm \    # dependency for pyside
+    && cd ${SW_PATH} \
     && curl -L https://download.jetbrains.com/python/pycharm-community-2022.3.3.tar.gz | tar xz
 
 # Visual Studio Code
@@ -232,9 +233,10 @@ ENV DISPLAY=host.docker.internal:20.0
 ENV JAVA_HOME=$JAVA_HOME
 ENV MAVEN_HOME=$MAVEN_HOME
 ENV IDEA_HOME=$IDEA_HOME
+ENV PYCHARM_HOME=/root/workdir/softwares/pycharm-community-2022.3.3
 ENV CMAKE_HOME=/root/workdir/softwares/cmake-3.27.7-linux-x86_64
 ENV HOME=$HOME
-ENV PATH=$CMAKE_HOME/bin:$JAVA_HOME/bin:$MAVEN_HOME/bin:$IDEA_HOME/bin:$PATH
+ENV PATH=$CMAKE_HOME/bin:$JAVA_HOME/bin:$MAVEN_HOME/bin:$IDEA_HOME/bin:$PYCHARM_HOME/bin:$PATH
 
 ENTRYPOINT /root/startup.sh && /usr/bin/zsh
 
