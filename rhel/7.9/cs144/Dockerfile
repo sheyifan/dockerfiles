@@ -103,12 +103,6 @@ RUN rpm --import https://packages.microsoft.com/keys/microsoft.asc \
     && yum clean all \
     && yum install -y code-1.80.0
 
-# clang
-RUN \
-    cd $SW_PATH \
-    && wget https://github.com/clangd/clangd/releases/download/18.1.3/clangd-linux-18.1.3.zip && unzip clangd-linux-18.1.3.zip && rm clangd-linux-18.1.3.zip \
-    && echo -e "/root/workdir/softwares/glibc/2.18/lib/ld-2.18.so /root/workdir/softwares/clangd_18.1.3/bin/clangd $@" > /usr/local/bin/clangd && chmod a+x /usr/local/bin/clangd
-
 RUN cd $SW_PATH \
     # Install GCC
     && wget --no-check-certificate https://ftp.gnu.org/gnu/gcc/gcc-13.2.0/gcc-13.2.0.tar.gz \
@@ -170,6 +164,13 @@ RUN \
     # plugin: Incremental completion on zsh (real-time completion)
     && mkdir $ZSH_CUSTOM/plugins/incr && curl -fsSL https://mimosa-pudica.net/src/incr-0.2.zsh -o $ZSH_CUSTOM/plugins/incr/incr.zsh \
     && echo 'source $ZSH_CUSTOM/plugins/incr/incr.zsh' >> ~/.zshrc
+
+# clangd
+RUN \
+    cd $SW_PATH \
+    && wget https://github.com/clangd/clangd/releases/download/18.1.3/clangd-linux-18.1.3.zip && unzip clangd-linux-18.1.3.zip && rm clangd-linux-18.1.3.zip \
+    && echo -e "/root/workdir/softwares/glibc/2.18/lib/ld-2.18.so /root/workdir/softwares/clangd_18.1.3/bin/clangd \$@" > /usr/local/bin/clangd && chmod a+x /usr/local/bin/clangd \
+    && cp -r /root/workdir/softwares/clangd_18.1.3/lib/clang /usr/local/lib
 
 # Login settings
 RUN \
