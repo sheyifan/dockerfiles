@@ -166,12 +166,24 @@ RUN \
     && mkdir $ZSH_CUSTOM/plugins/incr && curl -fsSL https://mimosa-pudica.net/src/incr-0.2.zsh -o $ZSH_CUSTOM/plugins/incr/incr.zsh \
     && echo 'source $ZSH_CUSTOM/plugins/incr/incr.zsh' >> ~/.zshrc
 
-# clangd
+# LLVM
 RUN \
     cd $SW_PATH \
     && wget https://github.com/clangd/clangd/releases/download/18.1.3/clangd-linux-18.1.3.zip && unzip clangd-linux-18.1.3.zip && rm clangd-linux-18.1.3.zip \
+    # flag for clangd to search headers: -isystem /root/workdir/softwares/clangd_18.1.3/lib/clang/18/include/
     && echo -e "/root/workdir/softwares/glibc/2.18/lib/ld-2.18.so /root/workdir/softwares/clangd_18.1.3/bin/clangd \$@" > /usr/local/bin/clangd && chmod a+x /usr/local/bin/clangd \
-    && cp -r /root/workdir/softwares/clangd_18.1.3/lib/clang /usr/local/lib
+    # clangd will find header from <launch_dir>/../lib
+    && cp -r /root/workdir/softwares/clangd_18.1.3/lib/clang /root/workdir/softwares/glibc/2.18/lib \
+    # link to stdc++ bundled with built gcc
+    && ln -sf /usr/local/lib64/libstdc++.so.6.0.32 /lib64/libstdc++.so.6 \
+    # build llvm
+    && cd /root/Downloads \
+    && git clone --depth=1 -b llvmorg-18.1.3 --single-branch https://github.com/llvm/llvm-project.git \
+    && cd llvm-project && mkdir build && cd build \
+    && cmake -DCMAKE_INSTALL_PREFIX:PATH=$SW_PATH/llvm -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra" -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles" ../llvm \
+    && make -j8 && make install \
+    && ln -s $SW_PATH/llvm/bin/clang-format /usr/local/bin/clang-format \
+    && ln -s /root/workdir/softwares/llvm/bin/clang-tidy /usr/local/bin/clang-tidy
 
 # Login settings
 RUN \
