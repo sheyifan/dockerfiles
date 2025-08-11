@@ -160,7 +160,8 @@ Terminal=false\n\
 StartupWMClass=jetbrains-pycharm-ce\n\
 StartupNotify=true' > /root/.local/share/applications/jetbrains-pycharm-ce.desktop
 
-RUN yum install -y xcb-util-wm \    # dependency for pyside
+# dependency for pyside
+RUN yum install -y xcb-util-wm \
     && cd ${SW_PATH} \
     && curl -L https://download.jetbrains.com/python/pycharm-community-2022.3.3.tar.gz | tar xz
 
