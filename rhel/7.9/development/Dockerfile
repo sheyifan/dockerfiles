@@ -132,7 +132,7 @@ StartupWMClass=cmake-gui\n\
 StartupNotify=true' > /root/.local/share/applications/cmake.desktop
 
 # git
-RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm https://repo.ius.io/ius-release-el7.rpm \
+RUN yum install -y https://archives.fedoraproject.org/pub/archive/epel/7/x86_64/Packages/e/epel-release-7-14.noarch.rpm https://repo.ius.io/ius-release-el7.rpm \
     && yum install -y make \
     && yum install -y https://repo.ius.io/7/x86_64/packages/g/git236-2.36.5-1.el7.ius.x86_64.rpm
 
