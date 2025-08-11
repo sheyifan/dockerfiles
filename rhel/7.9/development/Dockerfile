@@ -225,13 +225,9 @@ RUN echo '[General]' > /usr/share/kde-settings/kde-profile/default/share/config/
 # Startup script
 RUN \
     # vncconfig for copy-paste between vnc client and server
-    echo -e '/usr/sbin/sshd\nvncserver -SecurityTypes None :1 -geometry 1920x1200\nvncconfig &\nyum makecache fast' \
+    echo -e '/usr/sbin/sshd\nvncserver -SecurityTypes None :1 -geometry 1920x1200' \
     > /root/startup.sh \
     && chmod 777 /root/startup.sh
-
-RUN \
-    # vscode cannot be launched by root user without some specific parameters
-    echo -e 'code() { command code -parameter "--no-sandbox" "--user-data-dir" "/tmp/vscode" "$@" }'
 
 # Exposed port, just as a comment. Enable port mapping by "docker -p"
 EXPOSE 22
