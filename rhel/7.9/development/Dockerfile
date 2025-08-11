@@ -16,13 +16,13 @@ RUN yum install -y tightvnc-server net-tools vim @KDE-desktop openssh-server
 
 ARG FIREFOX_URL=https://download-installer.cdn.mozilla.net/pub/firefox/releases/117.0/linux-x86_64/en-US/firefox-117.0.tar.bz2
 ARG FIREFOX_DESKTOP_URL=https://raw.githubusercontent.com/mozilla/sumo-kb/main/install-firefox-linux/firefox.desktop
-ARG OPENJDK_URL=https://d6.injdk.cn/openjdk/openjdk/17/openjdk-17.0.1_linux-x64_bin.tar.gz
+ARG OPENJDK_URL=https://d10.injdk.cn/openjdk/openjdk/11/openjdk-11+28_linux-x64_bin.tar.gz
 ARG IDEA_URL=https://download-cdn.jetbrains.com/idea/ideaIC-2023.1.5.tar.gz
 
 ARG HOME=/root
 ARG SW_PATH=/root/workdir/softwares
 
-ARG JAVA_HOME=/root/workdir/sdk/java/17/jdk-17.0.1
+ARG JAVA_HOME=/root/workdir/sdk/java/11/jdk-11
 ARG MAVEN_HOME=$SW_PATH/idea-IC-2023.1.5/plugins/maven/lib/maven3
 ARG IDEA_HOME=$SW_PATH/idea-IC-2023.1.5
 
@@ -52,9 +52,9 @@ RUN yum install -y wget \
     && rm /root/Downloads/firefox-117.0.tar.bz2 \
     # Fix chinese messy code
     && yum groupinstall -y "fonts" \
-    && mkdir -p /root/workdir/sdk/java/17 \
+    && mkdir -p /root/workdir/sdk/java/11 \
     && wget $OPENJDK_URL -P /root/Downloads \
-    && tar xzvf /root/Downloads/openjdk-17.0.1_linux-x64_bin.tar.gz -C /root/workdir/sdk/java/17 \
+    && tar xzvf /root/Downloads/openjdk-11+28_linux-x64_bin.tar.gz -C /root/workdir/sdk/java/11 \
     && wget $IDEA_URL -P $SW_PATH && tar xzvf $SW_PATH/ideaIC-2023.1.5.tar.gz -C $SW_PATH && mv $SW_PATH/idea-IC* $IDEA_HOME \
     && rm $SW_PATH/ideaIC-2023.1.5.tar.gz
 
