@@ -214,6 +214,10 @@ RUN \
     # Where to put public key from client
     && touch /root/.ssh/authorized_keys && chmod 640 /root/.ssh/authorized_keys
 
+
+# Disable persistant KDE wallet popup window
+RUN sed -i 's/^Enabled=.*/Enabled=false/' /usr/share/kde-settings/kde-profile/default/share/config/kwalletrc
+
 # Startup script
 RUN \
     # vncconfig for copy-paste between vnc client and server
