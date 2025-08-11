@@ -214,6 +214,9 @@ RUN \
     # Where to put public key from client
     && touch /root/.ssh/authorized_keys && chmod 640 /root/.ssh/authorized_keys
 
+RUN \
+    # Change time zone
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 
 # Disable persistant KDE wallet popup window
 RUN sed -i 's/^Enabled=.*/Enabled=false/' /usr/share/kde-settings/kde-profile/default/share/config/kwalletrc
