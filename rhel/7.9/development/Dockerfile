@@ -218,6 +218,10 @@ RUN \
 # Disable persistant KDE wallet popup window
 RUN sed -i 's/^Enabled=.*/Enabled=false/' /usr/share/kde-settings/kde-profile/default/share/config/kwalletrc
 
+# Klipper prevents clipboard from working normally
+RUN echo '[General]' > /usr/share/kde-settings/kde-profile/default/share/config/klipperrc \
+    && echo 'AutoStart=false' >> /usr/share/kde-settings/kde-profile/default/share/config/klipperrc
+
 # Startup script
 RUN \
     # vncconfig for copy-paste between vnc client and server
